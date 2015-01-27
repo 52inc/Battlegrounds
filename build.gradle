@@ -1,0 +1,63 @@
+// Add Gradle FatJar Plugin, see https://github.com/musketyr/gradle-fatjar-plugin
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'eu.appsatori:gradle-fatjar-plugin:0.3'
+    }
+}
+import org.apache.tools.ant.taskdefs.condition.Os
+
+apply plugin: 'java'
+apply plugin: 'eu.appsatori.fatjar'
+apply plugin: 'application'
+apply plugin: 'project-report'
+apply plugin: 'idea'
+
+// The main class of the application
+mainClassName = 'com.example.helloworld.HelloWorldService'
+
+sourceCompatibility = 1.7
+sourceCompatibility = 1.7
+version = '1.0'
+
+// Set our project variables
+project.ext {
+    dropwizardVersion = '0.7.1'
+    dropWizardConfig = './src/dist/config/config.yml'
+    dropWizardConfigRemote = './src/dist/config/remote_config.yml'
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+
+    compile 'io.dropwizard:dropwizard-core:0.7.1'
+    compile 'io.dropwizard:dropwizard-jdbi:0.7.1'
+    compile 'io.dropwizard:dropwizard-hibernate:0.7.1'
+    compile 'io.dropwizard:dropwizard-auth:0.7.1'
+    compile 'io.dropwizard:dropwizard-assets:0.7.1'
+    compile 'io.dropwizard:dropwizard-migrations:0.7.1'
+
+    compile 'mysql:mysql-connector-java:5.1.31'
+
+    // this dependency is needed due to http://issues.gradle.org/browse/GRADLE-2647
+    compile "com.sun.jersey:jersey-client:1.15"
+
+    compile 'com.squareup.dagger:dagger:1.2.2'
+    compile 'com.squareup.dagger:dagger-compiler:1.2.2'
+
+}
+
+run {
+    args 'server', Os.isFamily(Os.FAMILY_MAC) ? dropWizardConfig : dropWizardConfigRemote
+}
+
+task stage(dependsOn: ['clean', 'fatJar'])
